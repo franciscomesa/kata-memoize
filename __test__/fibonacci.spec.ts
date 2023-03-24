@@ -13,12 +13,12 @@ class Memoize{
         this.cache[position] = result
     }
 
-    memoize(fn: Function, ...position: any) {
-        if (this.existsInMemoize(position)) {
-            return this.getMemoize(position)
+    memoize(fn: Function, ...args: any) {
+        if (this.existsInMemoize(args)) {
+            return this.getMemoize(args)
         }
-        let result = fn(...position)
-        this.saveToMemoize(position, result)
+        const result = fn(...args)
+        this.saveToMemoize(args, result)
         return result
     }
 }
