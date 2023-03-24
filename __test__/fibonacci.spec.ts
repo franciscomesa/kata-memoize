@@ -1,33 +1,36 @@
-class FibonacciGenerator {
+class Memoize{
     cache: number[] = []
 
     existsInMemoize(position: number) {
         return this.cache[position] != undefined
     }
 
-    private getMemoize(position: number) {
+    getMemoize(position: number) {
         return this.cache[position]
     }
 
-    private saveToMemoize(position: number, result: number) {
+    saveToMemoize(position: number, result: number) {
         this.cache[position] = result
     }
 
+    memoize(fn: Function, ...position: any) {
+        if (this.existsInMemoize(position)) {
+            return this.getMemoize(position)
+        }
+        let result = fn(...position)
+        this.saveToMemoize(position, result)
+        return result
+    }
+}
+
+class FibonacciGenerator {
+    memoize = new Memoize()
     generateNumberAtPosition(position: number): number {
         if (position === 1)
             return 0
         if (position === 2)
             return 1
-        return this.memoize(position - 1) + this.memoize(position - 2)
-    }
-
-    memoize(position: number) {
-        if (this.existsInMemoize(position)) {
-            return this.getMemoize(position)
-        }
-        let result = this.generateNumberAtPosition(position)
-        this.saveToMemoize(position, result)
-        return result
+        return this.memoize.memoize(this.generateNumberAtPosition.bind(this), position - 1) + this.memoize.memoize(this.generateNumberAtPosition.bind(this), position - 2)
     }
 }
 
@@ -53,20 +56,28 @@ describe('Fibonacci recursivily should per position', () => {
 })
 
 class FibonacciGeneratorIterative {
+    memoize = new Memoize()
     generateNumberAtPosition(position: number) {
         if (position == 1)
             return 0
         if (position == 2)
             return 1
+
         let previous = 0;
         let current = 1;
-        let newValue;
         for (let i = 2; i < position; i++) {
-            newValue = current + previous
-            previous = current
-            current = newValue
+            let result = this.memoize.memoize(this.calculate, current, previous)
+            previous = result.previous
+            current = result.current
         }
         return current
+    }
+
+    private calculate(current: number, previous: number) {
+        return {
+            previous: current,
+            current: current + previous,
+        }
     }
 }
 
@@ -99,7 +110,7 @@ describe("test que no es un test", () => {
     })
     it("iterative", () => {
         const fibonacciGenerator = new FibonacciGeneratorIterative()
-        for (let i = 1; i < 120; i++) {
+        for (let i = 1; i < 5000; i++) {
             console.log(fibonacciGenerator.generateNumberAtPosition(i))
         }
     })
