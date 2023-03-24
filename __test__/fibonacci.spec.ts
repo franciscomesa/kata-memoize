@@ -1,12 +1,33 @@
 class FibonacciGenerator {
-    // @ts-ignore
-    generateNumberAtPosition(position: number) {
+    cache: number[] = []
+
+    existsInMemoize(position: number) {
+        return this.cache[position] != undefined
+    }
+
+    private getMemoize(position: number) {
+        return this.cache[position]
+    }
+
+    private saveToMemoize(position: number, result: number) {
+        this.cache[position] = result
+    }
+
+    generateNumberAtPosition(position: number): number {
         if (position === 1)
             return 0
         if (position === 2)
             return 1
-        if (position > 2)
-            return this.generateNumberAtPosition(position-1) + this.generateNumberAtPosition(position-2)
+        return this.memoize(position - 1) + this.memoize(position - 2)
+    }
+
+    memoize(position: number) {
+        if (this.existsInMemoize(position)) {
+            return this.getMemoize(position)
+        }
+        let result = this.generateNumberAtPosition(position)
+        this.saveToMemoize(position, result)
+        return result
     }
 }
 
@@ -72,7 +93,7 @@ describe('Fibonacci iterative should per position', () => {
 describe("test que no es un test", () => {
     it("recursive", () => {
         const fibonacciGenerator = new FibonacciGenerator()
-        for (let i = 1; i < 40; i++) {
+        for (let i = 1; i < 5000; i++) {
             console.log(fibonacciGenerator.generateNumberAtPosition(i))
         }
     })
