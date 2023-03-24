@@ -23,6 +23,37 @@ class Memoize{
     }
 }
 
+function memoize2(fn: Function){
+    const map : any = {} ;
+
+    return (...args: any) => {
+        if (existsInMemoize(args)) {
+            return getMemoize(args)
+        }
+        const result = fn(...args)
+        saveToMemoize(args, result)
+        return result
+    };
+
+
+    function existsInMemoize(args: any) {
+        return map[args] != undefined
+    }
+
+    function getMemoize(args: any) {
+        return map[args]
+    }
+
+    function saveToMemoize(args: any, result: number) {
+        map[args] = result
+    }
+
+
+}
+
+
+
+
 class FibonacciGenerator {
     memoize = new Memoize()
     generateNumberAtPosition(position: number): number {
@@ -114,4 +145,17 @@ describe("test que no es un test", () => {
             console.log(fibonacciGenerator.generateNumberAtPosition(i))
         }
     })
+
+    it("memoize ", () => {
+    //    const fibonacciGenerator = new FibonacciGeneratorIterative()
+        let memoizeMasFibo = memoize2((n: number) =>
+            n < 2 ? n :
+            memoizeMasFibo(n-2) + memoizeMasFibo(n-1)
+        );
+
+        for (let i = 1; i < 5000; i++) {
+            console.log(memoizeMasFibo(i))
+        }
+    })
+
 })
